@@ -1,32 +1,34 @@
 package conditional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Testcontainers
 class DockerIntegrationTest {
 
-    // Dev
-    @Container
-    private static final GenericContainer<?> devApp = new GenericContainer<>("devapp:latest")
-            .withExposedPorts(8080);
-
-    // Prod
-    @Container
-    private static final GenericContainer<?> prodApp = new GenericContainer<>("prodapp:latest")
-            .withExposedPorts(8081);
+    private static GenericContainer<?> devApp;
+    private static GenericContainer<?> prodApp;
 
     private final TestRestTemplate restTemplate = new TestRestTemplate();
 
+    @BeforeAll
+    public static void setUp() {
+        // Создаем и стартуем контейнеры как требует задание
+        devApp = new GenericContainer<>("devapp:latest")
+                .withExposedPorts(8080);
+        prodApp = new GenericContainer<>("prodapp:latest")
+                .withExposedPorts(8081);
+
+        devApp.start();
+        prodApp.start();
+    }
+
     @Test
-    void testDevContainerReturnsDevProfile() {
-        // маппинг порта для dev
+    void testDevAppReturnsCorrectResponse() {
         Integer devMappedPort = devApp.getMappedPort(8080);
         String devUrl = "http://localhost:" + devMappedPort + "/profile";
 
@@ -37,8 +39,7 @@ class DockerIntegrationTest {
     }
 
     @Test
-    void testProdContainerReturnsProdProfile() {
-        // маппинг порта для prod
+    void testProdAppReturnsCorrectResponse() {
         Integer prodMappedPort = prodApp.getMappedPort(8081);
         String prodUrl = "http://localhost:" + prodMappedPort + "/profile";
 
