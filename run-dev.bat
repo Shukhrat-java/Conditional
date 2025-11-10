@@ -1,3 +1,0 @@
-@echo off
-echo Starting Prod application on port 8081...
-java -jar target/conditional2-1.0-SNAPSHOT.jar --spring.profiles.active=prod --server.port=8081
